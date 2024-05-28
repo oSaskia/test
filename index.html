@@ -25,6 +25,9 @@
         // Add the GPX file to the map
         var gpx = './e6.gpx'; // URL to your GPX file
         new L.GPX(gpx, {
+            gpx_options: {
+                joinTrackSegments: false
+                }
             async: true,
             marker_options: {
                 startIconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.4.0/images/pin-icon-start.png',
