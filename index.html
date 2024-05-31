@@ -22,21 +22,31 @@
                 height: 100%;
             }
             .popup-content {
+                overflow: hidden; /* Versteckt die Standard-Scrollbalken */
+                overflow-y: scroll; /* Ermöglicht vertikales Scrollen */
+                max-height: 490px; /* Setzt die maximale Höhe des Inhalts */
+                -ms-overflow-style: none; /* Versteckt die Scrollbalken in Internet Explorer und Edge */
+                scrollbar-width: none; /* Versteckt die Scrollbalken in Firefox */
                 text-align: center;
-                max-width: 200px;
+                max-width: 210px;
                 font-family: Arial, sans-serif;
                 padding: 10px;
                 box-sizing: border-box; /* Ensures padding is included in width */
+            }
+            .popup-content::-webkit-scrollbar {
+                display: none; /* Versteckt die Scrollbalken in Webkit-Browsern (z.B. Chrome, Safari) */
             }
             .popup-content video {
                 width: 100%;
                 border-radius: 10px;
                 margin-bottom: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Fügt einen Schatten hinzu */
             }
             .popup-image {
                 width: 100%;
                 height: auto;
-                border-radius: 10px; 
+                border-radius: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Fügt einen Schatten hinzu */
             }
             .popup-content h3 {
                 font-weight: bold;
@@ -48,10 +58,17 @@
                 color: #777;
                 margin-bottom: 10px;
             }
-            .popup-content p {
-                margin: 0 0 10px;
+            .popup-content .text-container {
+                background-color: #f9f9f9; /* Hintergrundfarbe für den Rahmen */
+                padding: 5px 10px; /* Reduziert den Innenabstand oben und unten */
+                border: 1px solid #ddd; /* Rahmen um den Text */
+                border-radius: 5px; /* Optionale abgerundete Ecken */
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.12); /* Innere Schatten für den Text */
                 line-height: 1.4;
                 text-align: left;
+            }
+            .popup-content .text-container p {
+                margin: 5px 0; /* Reduziert den Abstand zwischen den Absätzen */
             }
         </style>
 
@@ -176,15 +193,17 @@
             </video>
                 <h3>Schlafplatz</h3>
                 <div class="date">30.05 - 02.06.2024</div>
-                <p>Ahoj aus Rumburk,</p>
-                <p>Seit gestern bin in Tschechien, gerade im Bett meiner kleinen Pension kapp hinter der Grenze. Angesichts des Wetterberichts habe ich in den letzten Tagen nochmal ordentlich auf die Wandertube gedrückt und die erste Bergetappe hinter mich gebracht, um vor dem großen Regen hier her zu kommen. In unserem Nachbarland kann man nämlich schon für 29€ pro Nacht fürstlichen logieren und sich für 10€ ordentlich satt essen. (Fassbier gibt's ab 1,50€!!)</p>
-                <p>Unter diesen himmlischen Umständen werde ich dann wohl noch zwei weitere Nächte hier ausharren, bis sich die Füße etwas abgekühlt  und die Wolken wieder verzogen haben. Dann wird auch schon Prag anvisiert, das noch etwa 100km entfernt ist. Heute Abend geht's aber erstmal in die Dorfdisko auf ein paar Wodka-Bull.</p>
-                <p>Heute also nur ein kurzer Text dafür aber ein längeres Video mit den Bildern der letzten Woche.</p>
-                <!-- Füge hier mehr Text hinzu -->
+                <div class="text-container">
+                    <p>Ahoj aus Rumburk,</p>
+                    <p>Seit gestern bin in Tschechien, gerade im Bett meiner kleinen Pension kapp hinter der Grenze. Angesichts des Wetterberichts habe ich in den letzten Tagen nochmal ordentlich auf die Wandertube gedrückt und die erste Bergetappe hinter mich gebracht, um vor dem großen Regen hier her zu kommen. In unserem Nachbarland kann man nämlich schon für 29€ pro Nacht fürstlichen logieren und sich für 10€ ordentlich satt essen. (Fassbier gibt's ab 1,50€!!)</p>
+                    <p>Unter diesen himmlischen Umständen werde ich dann wohl noch zwei weitere Nächte hier ausharren, bis sich die Füße etwas abgekühlt  und die Wolken wieder verzogen haben. Dann wird auch schon Prag anvisiert, das noch etwa 100km entfernt ist. Heute Abend geht's aber erstmal in die Dorfdisko auf ein paar Wodka-Bull.</p>
+                    <p>Heute also nur ein kurzer Text dafür aber ein längeres Video mit den Bildern der letzten Woche.</p>
+                    <!-- Füge hier mehr Text hinzu -->
+                </div>
             </div>                       
             `;
 
-            var marker_20240531 = L.marker([50.9555981,14.5500692],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240531, { maxHeight: 450, minWidth: 220 }).closePopup();
+            var marker_20240531 = L.marker([50.9555981,14.5500692],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240531).closePopup();
 
             // Popup 2024-05-29
             var content_20240529 = `
@@ -192,12 +211,14 @@
                 <img src="./media/2024-05-29.jpg" alt="Foto" class="popup-image" onclick="openFullscreen(this)">
                 <h3>Schlafplatz</h3>
                 <div class="date">29.05.2024</div>
-                <p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
-                <!-- Füge hier mehr Text hinzu -->
+                <div class="text-container">
+                    <p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
+                    <!-- Füge hier mehr Text hinzu -->
+                </div>
             </div>                       
             `;
 
-            var marker_20240529 = L.marker([51.0897904,14.6926595],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240529, { maxHeight: 450, minWidth: 220 }).closePopup();
+            var marker_20240529 = L.marker([51.0897904,14.6926595],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240529).closePopup();
         </script>
     </body>
 </html>
