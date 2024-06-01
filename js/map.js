@@ -89,15 +89,60 @@ const search = new GeoSearch.GeoSearchControl({
 
 mymap.addControl(search);
 
-// Foto Fullscreen
+// Funktion zum Öffnen des Vollbildmodus und Hinzufügen der Zoom-Funktionalität
 function openFullscreen(element) {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) { /* Firefox */
-        element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { /* IE/Edge */
-        element.msRequestFullscreen();
+    const img = element;
+
+    // Funktion zum Zoomen des Bildes
+    function zoomImage(event) {
+        event.preventDefault();
+        let scale = 2; // Zoom-Faktor
+        img.style.transform = `scale(${scale})`;
+        img.style.transformOrigin = `${event.clientX}px ${event.clientY}px`;
     }
+
+    // Funktion zum Zurücksetzen des Zooms
+    function resetZoom() {
+        img.style.transform = '';
+    }
+
+    // Vollbildmodus öffnen
+    if (img.requestFullscreen) {
+        img.requestFullscreen();
+    } else if (img.mozRequestFullScreen) { /* Firefox */
+        img.mozRequestFullScreen();
+    } else if (img.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        img.webkitRequestFullscreen();
+    } else if (img.msRequestFullscreen) { /* IE/Edge */
+        img.msRequestFullscreen();
+    }
+
+    // Event Listener für Doppelklick zum Zoomen hinzufügen
+    img.addEventListener('dblclick', zoomImage);
+
+    // Event Listener zum Zurücksetzen des Zooms beim Verlassen des Vollbildmodus hinzufügen
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            img.removeEventListener('dblclick', zoomImage);
+            img.style.transform = '';
+        }
+    });
+    document.addEventListener('mozfullscreenchange', function() {
+        if (!document.mozFullScreenElement) {
+            img.removeEventListener('dblclick', zoomImage);
+            img.style.transform = '';
+        }
+    });
+    document.addEventListener('webkitfullscreenchange', function() {
+        if (!document.webkitFullscreenElement) {
+            img.removeEventListener('dblclick', zoomImage);
+            img.style.transform = '';
+        }
+    });
+    document.addEventListener('msfullscreenchange', function() {
+        if (!document.msFullscreenElement) {
+            img.removeEventListener('dblclick', zoomImage);
+            img.style.transform = '';
+        }
+    });
 }
