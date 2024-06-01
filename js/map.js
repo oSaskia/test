@@ -89,20 +89,23 @@ const search = new GeoSearch.GeoSearchControl({
 
 mymap.addControl(search);
 
+
+
+
 function openFullscreen(element) {
     const img = element;
 
-    // Funktion zum Zoomen des Bildes
-    function zoomImage(event) {
-        event.preventDefault();
-        let scale = 2; // Zoom-Faktor
-        img.style.transform = `scale(${scale})`;
-        img.style.transformOrigin = `${event.clientX}px ${event.clientY}px`;
-    }
-
-    // Funktion zum Zurücksetzen des Zooms
-    function resetZoom() {
-        img.style.transform = '';
+    function handleFullscreenChange() {
+        if (!document.fullscreenElement &&
+            !document.mozFullScreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.msFullscreenElement) {
+            panzoom.destroy(); // Stop Panzoom
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+        }
     }
 
     // Vollbildmodus öffnen
@@ -116,35 +119,52 @@ function openFullscreen(element) {
         img.msRequestFullscreen();
     }
 
-    // Event Listener für Doppelklick zum Zoomen hinzufügen
-    img.addEventListener('dblclick', zoomImage);
+    // Initialize Panzoom after entering fullscreen
+    img.addEventListener('fullscreenchange', function() {
+        const panzoom = Panzoom(img, {
+            maxScale: 3,
+            minScale: 1,
+            contain: 'inside'
+        });
+        img.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+    });
+
+    img.addEventListener('mozfullscreenchange', function() {
+        const panzoom = Panzoom(img, {
+            maxScale: 3,
+            minScale: 1,
+            contain: 'inside'
+        });
+        img.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+    });
+
+    img.addEventListener('webkitfullscreenchange', function() {
+        const panzoom = Panzoom(img, {
+            maxScale: 3,
+            minScale: 1,
+            contain: 'inside'
+        });
+        img.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+    });
+
+    img.addEventListener('msfullscreenchange', function() {
+        const panzoom = Panzoom(img, {
+            maxScale: 3,
+            minScale: 1,
+            contain: 'inside'
+        });
+        img.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+    });
 
     // Event Listener zum Zurücksetzen des Zooms beim Verlassen des Vollbildmodus hinzufügen
-    document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement) {
-            img.removeEventListener('dblclick', zoomImage);
-            img.style.transform = '';
-        }
-    });
-    document.addEventListener('mozfullscreenchange', function() {
-        if (!document.mozFullScreenElement) {
-            img.removeEventListener('dblclick', zoomImage);
-            img.style.transform = '';
-        }
-    });
-    document.addEventListener('webkitfullscreenchange', function() {
-        if (!document.webkitFullscreenElement) {
-            img.removeEventListener('dblclick', zoomImage);
-            img.style.transform = '';
-        }
-    });
-    document.addEventListener('msfullscreenchange', function() {
-        if (!document.msFullscreenElement) {
-            img.removeEventListener('dblclick', zoomImage);
-            img.style.transform = '';
-        }
-    });
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
 }
+
+
+
 
 
 
