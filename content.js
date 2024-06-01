@@ -19,16 +19,19 @@ Your browser does not support the video tag.
 
 var marker_20240531 = L.marker([50.9555981,14.5500692],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240531).closePopup();
 
-// Popup 2024-05-29
 var content_20240529 = `
 <div class="popup-content">
-    <img src="./media/2024-05-29.jpg" alt="Foto" class="popup-image" onclick="openFullscreen(this)">
+    <div class="lightbox-gallery">
+        <a class="example-image-link" href="./media/2024-05-29.jpg" data-lightbox="example-2" data-title="Optional caption.">
+            <img class="example-image" src="./media/2024-05-29.jpg" alt="Foto"/>
+        </a>
+    </div>
     <h3>Schlafplatz</h3>
     <div class="date">29.05.2024</div>
     <div class="text-container">
-<p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
-<!-- Füge hier mehr Text hinzu -->
-</div>
+        <p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
+        <!-- Füge hier mehr Text hinzu -->
+    </div>
 </div>                       
 `;
 
