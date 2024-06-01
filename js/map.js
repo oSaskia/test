@@ -89,7 +89,6 @@ const search = new GeoSearch.GeoSearchControl({
 
 mymap.addControl(search);
 
-// Funktion zum Öffnen des Vollbildmodus und Hinzufügen der Zoom-Funktionalität
 function openFullscreen(element) {
     const img = element;
 
@@ -146,3 +145,6 @@ function openFullscreen(element) {
         }
     });
 }
+
+
+
