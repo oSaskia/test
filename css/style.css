@@ -65,7 +65,7 @@ html, body {
 }
 
 .link-button {
-    background-color: hsl(0, 0%, 70%); /* Hellgraue Hintergrundfarbe */
+    background-color: hsl(0, 0%, 80%); /* Hellgraue Hintergrundfarbe */
     color: #ffffff !important; /* Dunkelgraue Schriftfarbe */
     border: none;
     padding: 10px;
@@ -81,7 +81,7 @@ html, body {
 }
 
 .link-button:hover {
-    background-color: hsl(0, 0%, 60%); /* Etwas dunkleres Hellgrau beim Hover */
+    background-color: hsl(0, 0%, 70%); /* Etwas dunkleres Hellgrau beim Hover */
 }
 
 
