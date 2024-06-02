@@ -33,8 +33,6 @@ html, body {
     height: auto;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Fügt einen Schatten hinzu */
-    cursor: pointer; /* Zeigt an, dass das Bild anklickbar ist */
-    transition: transform 0.25s ease; /* Smooth transition for zooming */
 }
 .popup-content h3 {
     font-weight: bold;
