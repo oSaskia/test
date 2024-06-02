@@ -1,20 +1,24 @@
 // Popup 2024-05-31
 var content_20240531 = `
 <div class="popup-content">
-<video controls>
-<source src="./media/2024-05-31.mp4" type="video/mp4">
-Your browser does not support the video tag.
-</video>
+    <video controls>
+        <source src="./media/2024-05-31.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
     <h3>Schlafplatz</h3>
     <div class="date">30.05 - 02.06.2024</div>
     <div class="text-container">
-<p>Ahoj aus Rumburk,</p>
-<p>Seit gestern bin in Tschechien, gerade im Bett meiner kleinen Pension kapp hinter der Grenze. Angesichts des Wetterberichts habe ich in den letzten Tagen nochmal ordentlich auf die Wandertube gedrückt und die erste Bergetappe hinter mich gebracht, um vor dem großen Regen hier her zu kommen. In unserem Nachbarland kann man nämlich schon für 29€ pro Nacht fürstlichen logieren und sich für 10€ ordentlich satt essen. (Fassbier gibt's ab 1,50€!!)</p>
-<p>Unter diesen himmlischen Umständen werde ich dann wohl noch zwei weitere Nächte hier ausharren, bis sich die Füße etwas abgekühlt  und die Wolken wieder verzogen haben. Dann wird auch schon Prag anvisiert, das noch etwa 100km entfernt ist. Heute Abend geht's aber erstmal in die Dorfdisko auf ein paar Wodka-Bull.</p>
-<p>Heute also nur ein kurzer Text dafür aber ein längeres Video mit den Bildern der letzten Woche.</p>
-<!-- Füge hier mehr Text hinzu -->
+        <p>Ahoj aus Rumburk,</p>
+        <p>Seit gestern bin in Tschechien, gerade im Bett meiner kleinen Pension kapp hinter der Grenze. Angesichts des Wetterberichts habe ich in den letzten Tagen nochmal ordentlich auf die Wandertube gedrückt und die erste Bergetappe hinter mich gebracht, um vor dem großen Regen hier her zu kommen. In unserem Nachbarland kann man nämlich schon für 29€ pro Nacht fürstlichen logieren und sich für 10€ ordentlich satt essen. (Fassbier gibt's ab 1,50€!!)</p>
+        <p>Unter diesen himmlischen Umständen werde ich dann wohl noch zwei weitere Nächte hier ausharren, bis sich die Füße etwas abgekühlt  und die Wolken wieder verzogen haben. Dann wird auch schon Prag anvisiert, das noch etwa 100km entfernt ist. Heute Abend geht's aber erstmal in die Dorfdisko auf ein paar Wodka-Bull.</p>
+        <p>Heute also nur ein kurzer Text dafür aber ein längeres Video mit den Bildern der letzten Woche.</p>
+    </div>
+    <div class="links-container">
+        <a href="https://www.google.com/maps?q=50.9555981,14.5500692" target="_blank" class="link-button">Google Maps</a>
+        <a href="https://en.wikipedia.org/wiki/Special:Nearby#/coord/50.9555981,14.5500692" target="_blank" class="link-button">Wiki Nearby (EN)</a>
+        <a href="https://de.wikipedia.org/wiki/Spezial:In_der_N%C3%A4he#/coord/50.9555981,14.5500692" target="_blank" class="link-button">Wiki Nearby (DE)</a>
+    </div>
 </div>
-</div>                       
 `;
 
 var marker_20240531 = L.marker([50.9555981,14.5500692],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240531).closePopup();
@@ -26,13 +30,20 @@ var content_20240529 = `
     <h3>Schlafplatz</h3>
     <div class="date">29.05.2024</div>
     <div class="text-container">
-<p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
-<!-- Füge hier mehr Text hinzu -->
+        <p>Kleines Zimmer mit Balkon und im Bad eine Zecke an Popo entdeckt.</p>
+    </div>
+    <div class="links-container">
+        <a href="https://www.google.com/maps?q=51.0897904,14.6926595" target="_blank" class="link-button">Google Maps</a>
+        <a href="https://en.wikipedia.org/wiki/Special:Nearby#/coord/51.0897904,14.6926595" target="_blank" class="link-button">Wiki Nearby (EN)</a>
+        <a href="https://de.wikipedia.org/wiki/Spezial:In_der_N%C3%A4he#/coord/51.0897904,14.6926595" target="_blank" class="link-button">Wiki Nearby (DE)</a>
+    </div>
 </div>
-</div>                       
 `;
 
 var marker_20240529 = L.marker([51.0897904,14.6926595],{icon: orangeIcon}).addTo(mymap).bindPopup(content_20240529).closePopup();
+
+
+
 
 // Popup 2024-05-28
 var content_20240528 = `
