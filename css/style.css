@@ -66,7 +66,7 @@ html, body {
 
 .link-button {
     background-color: hsl(0, 0%, 70%); /* Hellgraue Hintergrundfarbe */
-    color: #edebe7 !important; /* Dunkelgraue Schriftfarbe */
+    color: #ffffff !important; /* Dunkelgraue Schriftfarbe */
     border: none;
     padding: 10px;
     text-align: center;
