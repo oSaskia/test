@@ -7,7 +7,7 @@ class MarkerContent {
         this.mediaType = mediaType;
         this.mediaSrc = mediaSrc;
         this.description = description;
-        this.icon = icon || orangeIcon; // Default icon
+        this.icon = icon || blueIcon; // Default icon
     }
 
     generateContent() {
@@ -18,12 +18,14 @@ class MarkerContent {
             mediaElement = `<img src="${this.mediaSrc}" alt="Foto" class="popup-image" onclick="openFullscreen(this)">`;
         }
 
+        const descriptionHTML = this.description.split('|||').map(paragraph => `<p>${paragraph.trim()}</p>`).join('');
+
         return `
             <div class="popup-content">
                 ${mediaElement}
                 <h3>${this.title}</h3>
                 <div class="date">${this.date}</div>
-                <div class="text-container">${this.description.split('\n\n').map(paragraph => `<p>${paragraph}</p>`).join('')}</div>
+                <div class="text-container">${descriptionHTML}</div>
                 <div class="links-container">
                     <a href="https://www.google.com/maps?q=${this.lat},${this.lng}" target="_blank" class="link-button">Google Maps</a>
                     <a href="https://en.wikipedia.org/wiki/Special:Nearby#/coord/${this.lat},${this.lng}" target="_blank" class="link-button">Wiki Nearby (EN)</a>
@@ -42,18 +44,10 @@ class MarkerContent {
     }
 }
 
-async function fetchJsonContent(url) {
-    const response = await fetch(url);
-    const data = await response.json();
-    return data;
-}
-
-async function createMarkers() {
-    const data = await fetchJsonContent('./descriptions.json');
-    const markersData = data.markers;
-
+function createMarkers() {
     for (const markerData of markersData) {
         const [lat, lng] = markerData.coordinates.split(',').map(Number);
+        const icon = markerData.markerType === 'orange' ? orangeIcon : blueIcon;
         const marker = new MarkerContent(
             lat,
             lng,
@@ -61,7 +55,8 @@ async function createMarkers() {
             markerData.title,
             markerData.mediaType,
             markerData.mediaSrc,
-            markerData.description
+            markerData.description,
+            icon
         );
         marker.addToMap(mymap);
     }
