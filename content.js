@@ -23,7 +23,7 @@ class MarkerContent {
                 ${mediaElement}
                 <h3>${this.title}</h3>
                 <div class="date">${this.date}</div>
-                <div class="text-container">${this.description}</div>
+                <div class="text-container">${this.description.split('\n\n').map(paragraph => `<p>${paragraph}</p>`).join('')}</div>
                 <div class="links-container">
                     <a href="https://www.google.com/maps?q=${this.lat},${this.lng}" target="_blank" class="link-button">Google Maps</a>
                     <a href="https://en.wikipedia.org/wiki/Special:Nearby#/coord/${this.lat},${this.lng}" target="_blank" class="link-button">Wiki Nearby (EN)</a>
@@ -42,38 +42,27 @@ class MarkerContent {
     }
 }
 
-async function fetchTextContent(url) {
+async function fetchJsonContent(url) {
     const response = await fetch(url);
-    const text = await response.text();
-    return text.split('\n\n').map(paragraph => `<p>${paragraph}</p>`).join('');
+    const data = await response.json();
+    return data;
 }
 
 async function createMarkers() {
-    const markersData = [
-        {
-            lat: 50.9555981,
-            lng: 14.5500692,
-            date: '30.05 - 02.06.2024',
-            title: 'Schlafplatz',
-            mediaType: 'video',
-            mediaSrc: './media/2024-05-31.mp4',
-            textFile: './texts/description_20240531.txt'
-        },
-        {
-            lat: 51.0897904,
-            lng: 14.6926595,
-            date: '29.05.2024',
-            title: 'Schlafplatz',
-            mediaType: 'image',
-            mediaSrc: './media/2024-05-29.jpg',
-            textFile: './texts/description_20240529.txt'
-        }
-        // Weitere Marker hier hinzufügen
-    ];
+    const data = await fetchJsonContent('./descriptions.json');
+    const markersData = data.markers;
 
-    for (const data of markersData) {
-        const description = await fetchTextContent(data.textFile);
-        const marker = new MarkerContent(data.lat, data.lng, data.date, data.title, data.mediaType, data.mediaSrc, description);
+    for (const markerData of markersData) {
+        const [lat, lng] = markerData.coordinates.split(',').map(Number);
+        const marker = new MarkerContent(
+            lat,
+            lng,
+            markerData.date,
+            markerData.title,
+            markerData.mediaType,
+            markerData.mediaSrc,
+            markerData.description
+        );
         marker.addToMap(mymap);
     }
 }
