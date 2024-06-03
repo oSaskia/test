@@ -101,5 +101,3 @@ function openFullscreen(element) {
         element.msRequestFullscreen();
     }
 }
-
-
