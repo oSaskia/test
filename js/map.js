@@ -84,7 +84,7 @@ const orangeIcon = L.icon({
     iconSize: [25, 41],
     iconAnchor: [13, 42],
     popupAnchor: [2, -35],
-    shadowUrl: './media/marker-shadow.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
@@ -94,7 +94,7 @@ const blueIcon = L.icon({
     iconSize: [25, 41],
     iconAnchor: [13, 42],
     popupAnchor: [2, -35],
-    shadowUrl: './media/marker-shadow.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
@@ -130,4 +130,46 @@ function openFullscreen(element) {
     } else if (element.msRequestFullscreen) { /* IE/Edge */
         element.msRequestFullscreen();
     }
+}
+
+// Store Wikipedia markers to enable toggling
+let wikipediaMarkers = [];
+
+// Function to add or remove Wikipedia markers on the map
+function toggleWikipediaMarkers(lat, lng, lang = 'en') {
+    // Remove existing markers if they are present
+    if (wikipediaMarkers.length > 0) {
+        wikipediaMarkers.forEach(marker => mymap.removeLayer(marker));
+        wikipediaMarkers = [];
+    }
+
+    // Fetch and add Wikipedia markers
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=10000&gslimit=10&format=json&origin=*`)
+        .then(response => response.json())
+        .then(data => {
+            data.query.geosearch.forEach(article => {
+                fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=300&titles=${article.title}&format=json&origin=*`)
+                    .then(response => response.json())
+                    .then(detailData => {
+                        const pages = detailData.query.pages;
+                        const page = Object.values(pages)[0];
+                        const imageUrl = page.thumbnail ? page.thumbnail.source : '';
+                        const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
+                        const marker = L.marker([article.lat, article.lon], { icon: blueIcon }).addTo(mymap);
+                        marker.bindPopup(`
+                            <div class="popup-content">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}" class="popup-image" onclick="openFullscreen(this)">` : ''}
+                                <h3>${article.title}</h3>
+                                <div class="text-container">
+                                    ${page.extract}
+                                    <a href="https://${lang}.wikipedia.org/wiki/${article.title}" target="_blank">${readMoreText}</a>
+                                </div>
+                            </div>
+                        `);
+                        wikipediaMarkers.push(marker);
+                    })
+                    .catch(error => console.error('Error fetching Wikipedia article details:', error));
+            });
+        })
+        .catch(error => console.error('Error fetching Wikipedia articles:', error));
 }

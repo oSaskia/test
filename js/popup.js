@@ -31,8 +31,8 @@ class MarkerContent {
                 <div class="links-container">
                     <a href="https://www.google.com/maps?q=${this.lat},${this.lng}" target="_blank" class="link-button">Google Maps</a>
                     <div class="wiki-buttons">
-                        <a href="https://en.wikipedia.org/wiki/Special:Nearby#/coord/${this.lat},${this.lng}" target="_blank" class="link-button half-width">Wiki (EN)</a>
-                        <a href="https://de.wikipedia.org/wiki/Spezial:In_der_N%C3%A4he#/coord/${this.lat},${this.lng}" target="_blank" class="link-button half-width">Wiki (DE)</a>
+                        <button onclick="toggleWikipediaMarkers(${this.lat}, ${this.lng}, 'en')" class="link-button half-width">Wiki (EN)</button>
+                        <button onclick="toggleWikipediaMarkers(${this.lat}, ${this.lng}, 'de')" class="link-button half-width">Wiki (DE)</button>
                     </div>
                 </div>
             </div>
