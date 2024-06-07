@@ -10,7 +10,7 @@ html, body {
 .popup-content {
     overflow: hidden; /* Versteckt die Standard-Scrollbalken */
     overflow-y: scroll; /* Ermöglicht vertikales Scrollen */
-    max-height: 500px; /* Setzt die maximale Höhe des Inhalts */
+    max-height: 544px; /* Setzt die maximale Höhe des Inhalts */
     -ms-overflow-style: none; /* Versteckt die Scrollbalken in Internet Explorer und Edge */
     scrollbar-width: none; /* Versteckt die Scrollbalken in Firefox */
     text-align: center;
@@ -19,6 +19,13 @@ html, body {
     padding: 0px;
     padding-top: 4px;
     box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+/* Medienabfrage für kleinere Bildschirme */
+@media (max-width: 330px) {
+    .popup-content {
+        max-height: 408px; /* Setzt die maximale Höhe des Inhalts für kleinere Bildschirme */
+    }
 }
 .popup-content::-webkit-scrollbar {
     display: none; /* Versteckt die Scrollbalken in Webkit-Browsern (z.B. Chrome, Safari) */
@@ -56,8 +63,6 @@ html, body {
 .popup-content .text-container p {
     margin: 5px 0; /* Reduziert den Abstand zwischen den Absätzen */
 }
-/* Bestehende CSS-Klassen bleiben unverändert */
-
 .link-button {
     background-color: hsl(46, 66%, 64%); /* Hellgraue Hintergrundfarbe */
     color: #576775 !important; /* Dunkelgraue Schriftfarbe */
@@ -100,7 +105,6 @@ html, body {
     justify-content: space-between; /* Gleichmäßige Verteilung der Buttons */
     margin-top: 5px; /* Etwas Abstand nach oben */
 }
-
 
 
 
