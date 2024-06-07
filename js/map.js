@@ -99,6 +99,16 @@ const blueIcon = L.icon({
     shadowAnchor: [13, 41]
 });
 
+const yellowIcon = L.icon({
+    iconUrl: './media/marker-icon-yellow.png',
+    iconSize: [25, 41],
+    iconAnchor: [13, 42],
+    popupAnchor: [2, -35],
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    shadowSize: [41, 41],
+    shadowAnchor: [13, 41]
+});
+
 // Add layer control for switching base layers
 L.control.layers(baseMaps).addTo(mymap);
 
@@ -143,7 +153,7 @@ function toggleWikipediaMarkers(lat, lng, lang = 'en') {
         wikipediaMarkers = [];
     }
 
-    // Fetch and add Wikipedia markers
+    // Fetch and add Wikipedia markers if no markers are present
     fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=10000&gslimit=10&format=json&origin=*`)
         .then(response => response.json())
         .then(data => {
@@ -155,7 +165,7 @@ function toggleWikipediaMarkers(lat, lng, lang = 'en') {
                         const page = Object.values(pages)[0];
                         const imageUrl = page.thumbnail ? page.thumbnail.source : '';
                         const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
-                        const marker = L.marker([article.lat, article.lon], { icon: blueIcon }).addTo(mymap);
+                        const marker = L.marker([article.lat, article.lon], { icon: yellowIcon }).addTo(mymap);
                         marker.bindPopup(`
                             <div class="popup-content">
                                 ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}" class="popup-image" onclick="openFullscreen(this)">` : ''}
