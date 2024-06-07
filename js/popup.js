@@ -1,3 +1,4 @@
+// Class to handle marker content
 class MarkerContent {
     constructor(lat, lng, date, title, mediaType, mediaSrc, description, icon) {
         this.lat = lat;
@@ -7,9 +8,10 @@ class MarkerContent {
         this.mediaType = mediaType;
         this.mediaSrc = mediaSrc;
         this.description = description;
-        this.icon = icon || blueIcon; // Default icon
+        this.icon = icon || blueIcon; // Default icon if not specified
     }
 
+    // Generate the HTML content for the popup
     generateContent() {
         let mediaElement;
         if (this.mediaType === 'video') {
@@ -37,6 +39,7 @@ class MarkerContent {
         `;
     }
 
+    // Add the marker to the map
     addToMap(map) {
         const content = this.generateContent();
         L.marker([this.lat, this.lng], { icon: this.icon })
@@ -46,6 +49,7 @@ class MarkerContent {
     }
 }
 
+// Function to create markers from the provided data
 function createMarkers() {
     for (const markerData of markersData) {
         const [lat, lng] = markerData.coordinates.split(',').map(Number);
@@ -64,4 +68,5 @@ function createMarkers() {
     }
 }
 
+// Initialize and add markers to the map
 createMarkers();
