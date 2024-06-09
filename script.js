@@ -1,11 +1,44 @@
+// Function to set a cookie
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+// Function to get a cookie
+function getCookie(name) {
+    const cname = name + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+    for (let i = 0; i < cookieArray.length; i++) {
+        let c = cookieArray[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(cname) === 0) {
+            return c.substring(cname.length, c.length);
+        }
+    }
+    return "";
+}
+
 // Initialize the map
-const mymap = L.map('map').setView([50.932188, 10.583255], 7);
+const savedCenter = getCookie("mapCenter");
+const savedZoom = getCookie("mapZoom");
+const savedLanguage = getCookie("mapLanguage") || "en";
+const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
+
+const mapCenter = savedCenter ? JSON.parse(savedCenter) : [51.0897904, 14.6926595];
+const mapZoom = savedZoom ? parseInt(savedZoom) : 7;
+
+const mymap = L.map('map').setView(mapCenter, mapZoom);
 
 // Base layers for the map
 const openStreetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: "&copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors",
     maxZoom: 19
-}).addTo(mymap);
+});
 
 const openTopoMapLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     attribution: "&copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors, &copy; <a href='https://opentopomap.org' target='_blank'>OpenTopoMap</a> (CC-BY-SA)",
@@ -24,7 +57,10 @@ const baseMaps = {
     "Luftbilder": googleSatLayer
 };
 
-L.control.layers(baseMaps).addTo(mymap);
+const selectedBasemap = baseMaps[savedBasemap];
+selectedBasemap.addTo(mymap);
+
+const layerControl = L.control.layers(baseMaps).addTo(mymap);
 L.control.scale({ metric: true, imperial: false }).addTo(mymap);
 
 const search = new GeoSearch.GeoSearchControl({
@@ -51,7 +87,7 @@ const yellowIcon = L.icon({
 // Store Wikipedia markers to enable toggling
 let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 15 });
 let loadedArticles = new Set();
-let currentLang = 'en';
+let currentLang = savedLanguage;
 
 // Function to add or remove Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
@@ -98,11 +134,19 @@ mymap.addLayer(wikipediaMarkers);
 
 mymap.on('moveend', function() {
     const center = mymap.getCenter();
+    const zoom = mymap.getZoom();
+    setCookie("mapCenter", JSON.stringify(center), 7);
+    setCookie("mapZoom", zoom, 7);
     loadWikipediaMarkers(center, currentLang);
 });
 
 // Initialize with the current map center
 loadWikipediaMarkers(mymap.getCenter(), currentLang);
+
+// Save basemap selection
+mymap.on('baselayerchange', function(e) {
+    setCookie("mapBasemap", e.name, 7);
+});
 
 // Function to open an image in fullscreen mode
 function openFullscreen(element) {
@@ -165,7 +209,7 @@ const LanguageControl = L.Control.extend({
             <div class="language-switch">
                 <input type="radio" id="lang-de" name="language" value="de">
                 <label for="lang-de">DE</label>
-                <input type="radio" id="lang-en" name="language" value="en" checked>
+                <input type="radio" id="lang-en" name="language" value="en" ${currentLang === "en" ? "checked" : ""}>
                 <label for="lang-en">EN</label>
             </div>
         `;
@@ -180,6 +224,7 @@ mymap.addControl(new LanguageControl({ position: 'bottomright' }));
 document.querySelectorAll('input[name="language"]').forEach(input => {
     input.addEventListener('change', function() {
         currentLang = this.value;
+        setCookie("mapLanguage", currentLang, 7);
         loadedArticles.clear(); // Clear the set of loaded articles
         wikipediaMarkers.clearLayers(); // Clear the existing markers
         loadWikipediaMarkers(mymap.getCenter(), currentLang); // Load markers for the new language
