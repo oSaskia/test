@@ -110,3 +110,53 @@ html, body {
     justify-content: space-between;
     margin-top: 5px;
 }
+
+.leaflet-control-locate .fa-location-arrow {
+    color: black; /* Default color for the icon */
+}
+
+.leaflet-control-locate.active .fa-location-arrow {
+    color: #136AEC; /* Color when location is active */
+}
+
+.leaflet-control-custom {
+    background-color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    position: absolute;
+    bottom: 14px; /* Positioning at the bottom */
+    right: 4px; /* Positioning at the right */
+    z-index: 1100; /* Ensure it is above other Leaflet buttons */
+}
+
+.language-switch {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.language-switch input[type="radio"] {
+    display: none;
+}
+
+.language-switch label {
+    cursor: pointer;
+    padding: 5px 3px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    user-select: none;
+}
+
+.language-switch label:last-child {
+    margin-bottom: 0;
+}
+
+.language-switch input[type="radio"]:checked + label {
+    background-color: #136AEC;
+    color: #fff;
+    border-color: #136AEC;
+}

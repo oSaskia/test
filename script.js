@@ -1,16 +1,5 @@
-// Set default coordinates if no marker is defined as the center
-let centerCoordinates = [51.0897904, 14.6926595];
-
-// Check if any marker is defined as the center
-for (const markerData of markersData) {
-    if (markerData["map-center"]) {
-        centerCoordinates = markerData.coordinates.split(',').map(Number);
-        break;
-    }
-}
-
-// Initialize the map with the center coordinates
-const mymap = L.map('map').setView(centerCoordinates, 10);
+// Initialize the map
+const mymap = L.map('map').setView([50.932188, 10.583255], 7);
 
 // Base layers for the map
 const openStreetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,76 +18,26 @@ const googleSatLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}
     attribution: "&copy; <a href='https://www.google.com/maps' target='_blank'>Google Maps</a>"
 });
 
-// Group base layers for easy switching
 const baseMaps = {
     "OpenStreetMap": openStreetMapLayer,
     "OpenTopoMap": openTopoMapLayer,
     "Luftbilder": googleSatLayer
 };
 
-// Add the route layer to the map
-const layer_routenroute_1 = new L.geoJson(json_routenroute_1, {
-    attribution: '',
-    interactive: false,
-    dataVar: 'json_routenroute_1',
-    layerName: 'layer_routenroute_1',
-    style: getStyle(mymap.getZoom())
-});
-mymap.addLayer(layer_routenroute_1);
+L.control.layers(baseMaps).addTo(mymap);
+L.control.scale({ metric: true, imperial: false }).addTo(mymap);
 
-// Define style for the route layer based on the zoom level
-function getStyle(zoom) {
-    if (zoom >= 14) {
-        return {
-            opacity: 1,
-            color: 'rgba(190,45,45,1.0)',
-            dashArray: '5, 12',
-            lineCap: 'round',
-            lineJoin: 'round',
-            weight: 5.0,
-            fillOpacity: 0,
-            interactive: true,
-        };
-    } else {
-        return {
-            opacity: 1,
-            color: 'rgba(190,45,45,1.0)',
-            dashArray: '0, 0',
-            lineCap: 'round',
-            lineJoin: 'round',
-            weight: 3.0,
-            fillOpacity: 0,
-            interactive: true,
-        };
-    }
-}
-
-// Update route style on zoom change
-mymap.on('zoomend', function() {
-    layer_routenroute_1.setStyle(getStyle(mymap.getZoom()));
+const search = new GeoSearch.GeoSearchControl({
+    provider: new GeoSearch.OpenStreetMapProvider(),
+    autoComplete: true,
+    autoCompleteDelay: 250,
+    showMarker: true,
+    showPopup: false,
 });
 
-// Define custom marker icons
-const orangeIcon = L.icon({
-    iconUrl: './media/marker-icon-orange.png',
-    iconSize: [25, 41],
-    iconAnchor: [13, 42],
-    popupAnchor: [2, -35],
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    shadowSize: [41, 41],
-    shadowAnchor: [13, 41]
-});
+mymap.addControl(search);
 
-const blueIcon = L.icon({
-    iconUrl: './media/marker-icon-blue.png',
-    iconSize: [25, 41],
-    iconAnchor: [13, 42],
-    popupAnchor: [2, -35],
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    shadowSize: [41, 41],
-    shadowAnchor: [13, 41]
-});
-
+// Custom marker icons
 const yellowIcon = L.icon({
     iconUrl: './media/marker-icon-yellow.png',
     iconSize: [25, 41],
@@ -109,25 +48,61 @@ const yellowIcon = L.icon({
     shadowAnchor: [13, 41]
 });
 
-// Add layer control for switching base layers
-L.control.layers(baseMaps).addTo(mymap);
+// Store Wikipedia markers to enable toggling
+let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 15 });
+let loadedArticles = new Set();
+let currentLang = 'en';
 
-// Add scale control to the map
-L.control.scale({
-    metric: true, 
-    imperial: false 
-}).addTo(mymap);
+// Function to add or remove Wikipedia markers on the map
+function loadWikipediaMarkers(center, lang = 'en') {
+    const { lat, lng } = center;
 
-// Add GeoSearch control with OpenStreetMap provider
-const search = new GeoSearch.GeoSearchControl({
-    provider: new GeoSearch.OpenStreetMapProvider(),
-    autoComplete: true,
-    autoCompleteDelay: 250,
-    showMarker: true,
-    showPopup: false,
+    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=10000&gslimit=500&format=json&origin=*`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.query) {
+                console.error('No query property in the Wikipedia API response:', data);
+                return;
+            }
+            data.query.geosearch.forEach(article => {
+                if (!loadedArticles.has(article.pageid)) {
+                    loadedArticles.add(article.pageid);
+                    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=600&titles=${article.title}&format=json&origin=*`)
+                        .then(response => response.json())
+                        .then(detailData => {
+                            const pages = detailData.query.pages;
+                            const page = Object.values(pages)[0];
+                            const imageUrl = page.thumbnail ? page.thumbnail.source : '';
+                            const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
+                            const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
+                            marker.bindPopup(`
+                                <div class="popup-content">
+                                    ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}" class="popup-image" onclick="openFullscreen(this)">` : ''}
+                                    <h3>${article.title}</h3>
+                                    <div class="text-container">
+                                        ${page.extract}
+                                        <a href="https://${lang}.wikipedia.org/wiki/${article.title}" target="_blank">${readMoreText}</a>
+                                    </div>
+                                </div>
+                            `);
+                            wikipediaMarkers.addLayer(marker);
+                        })
+                        .catch(error => console.error('Error fetching Wikipedia article details:', error));
+                }
+            });
+        })
+        .catch(error => console.error('Error fetching Wikipedia articles:', error));
+}
+
+mymap.addLayer(wikipediaMarkers);
+
+mymap.on('moveend', function() {
+    const center = mymap.getCenter();
+    loadWikipediaMarkers(center, currentLang);
 });
 
-mymap.addControl(search);
+// Initialize with the current map center
+loadWikipediaMarkers(mymap.getCenter(), currentLang);
 
 // Function to open an image in fullscreen mode
 function openFullscreen(element) {
@@ -142,44 +117,71 @@ function openFullscreen(element) {
     }
 }
 
-// Store Wikipedia markers to enable toggling
-let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 15 });
+// Add the locate control to the map
+L.control.locate({
+    position: 'topright',
+    setView: 'always',
+    keepCurrentZoomLevel: false,
+    drawCircle: true,
+    follow: false,
+    markerStyle: {
+        weight: 1,
+        opacity: 0.8,
+        fillOpacity: 0.8
+    },
+    circleStyle: {
+        color: '#136AEC',
+        fillColor: '#136AEC',
+        fillOpacity: 0.15,
+        weight: 2,
+        opacity: 0.5
+    },
+    icon: 'fas fa-location-arrow',  // FontAwesome icon
+    metric: true,
+    onLocationError: function(e) {
+        alert(e.message);
+    },
+    onLocationOutsideMapBounds: function(context) { // If the location is outside map bounds
+        context.stop();
+        alert("You seem located outside the boundaries of the map.");
+    },
+    locateOptions: {
+        maxZoom: 16,
+        watch: true,
+        enableHighAccuracy: true
+    }
+}).addTo(mymap);
 
-// Function to add or remove Wikipedia markers on the map
-function toggleWikipediaMarkers(lat, lng, lang = 'en') {
-    // Remove existing markers if they are present
-    wikipediaMarkers.clearLayers();
-
-    // Fetch and add Wikipedia markers
-    fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=10000&gslimit=500&format=json&origin=*`)
-        .then(response => response.json())
-        .then(data => {
-            data.query.geosearch.forEach(article => {
-                fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=600&titles=${article.title}&format=json&origin=*`)
-                    .then(response => response.json())
-                    .then(detailData => {
-                        const pages = detailData.query.pages;
-                        const page = Object.values(pages)[0];
-                        const imageUrl = page.thumbnail ? page.thumbnail.source : '';
-                        const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
-                        const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
-                        marker.bindPopup(`
-                            <div class="popup-content">
-                                ${imageUrl ? `<img src="${imageUrl}" alt="${article.title}" class="popup-image" onclick="openFullscreen(this)">` : ''}
-                                <h3>${article.title}</h3>
-                                <div class="text-container">
-                                    ${page.extract}
-                                    <a href="https://${lang}.wikipedia.org/wiki/${article.title}" target="_blank">${readMoreText}</a>
-                                </div>
-                            </div>
-                        `);
-                        wikipediaMarkers.addLayer(marker);
-                    })
-                    .catch(error => console.error('Error fetching Wikipedia article details:', error));
-            });
-        })
-        .catch(error => console.error('Error fetching Wikipedia articles:', error));
+// Function to show the device's location
+function showDeviceLocation() {
+    mymap.locate({ setView: true, maxZoom: 16 });
 }
 
-// Add the Wikipedia markers layer to the map
-mymap.addLayer(wikipediaMarkers);
+// Add the language switcher control to the map
+const LanguageControl = L.Control.extend({
+    onAdd: function(map) {
+        const div = L.DomUtil.create('div', 'leaflet-control-custom');
+        div.innerHTML = `
+            <div class="language-switch">
+                <input type="radio" id="lang-de" name="language" value="de">
+                <label for="lang-de">DE</label>
+                <input type="radio" id="lang-en" name="language" value="en" checked>
+                <label for="lang-en">EN</label>
+            </div>
+        `;
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+    }
+});
+
+mymap.addControl(new LanguageControl({ position: 'bottomright' }));
+
+// Handle language switch
+document.querySelectorAll('input[name="language"]').forEach(input => {
+    input.addEventListener('change', function() {
+        currentLang = this.value;
+        loadedArticles.clear(); // Clear the set of loaded articles
+        wikipediaMarkers.clearLayers(); // Clear the existing markers
+        loadWikipediaMarkers(mymap.getCenter(), currentLang); // Load markers for the new language
+    });
+});
