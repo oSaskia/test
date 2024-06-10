@@ -2,25 +2,18 @@
 function setCookie(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
 }
 
 // Function to get a cookie
 function getCookie(name) {
-    const cname = name + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const cookieArray = decodedCookie.split(';');
-    for (let i = 0; i < cookieArray.length; i++) {
-        let c = cookieArray[i];
-        while (c.charAt(0) === ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(cname) === 0) {
-            return c.substring(cname.length, c.length);
-        }
+    const nameEQ = `${name}=`;
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(nameEQ)) return cookie.substring(nameEQ.length);
     }
-    return "";
+    return null;
 }
 
 // Initialize the map
@@ -29,51 +22,49 @@ const savedZoom = getCookie("mapZoom");
 const savedLanguage = getCookie("mapLanguage") || "de";
 const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
 
+// Set default map center and zoom level
 const mapCenter = savedCenter ? JSON.parse(savedCenter) : [50.932188, 10.583255];
 const mapZoom = savedZoom ? parseInt(savedZoom) : 6;
 
-const mymap = L.map('map').setView(mapCenter, mapZoom);
+const map = L.map('map').setView(mapCenter, mapZoom);
 
-// Base layers for the map
+// Base map layers
 const openStreetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: "&copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors",
+    attribution: "&copy; OpenStreetMap contributors",
     maxZoom: 19
 });
 
 const openTopoMapLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    attribution: "&copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors, &copy; <a href='https://opentopomap.org' target='_blank'>OpenTopoMap</a> (CC-BY-SA)",
+    attribution: "&copy; OpenStreetMap contributors, &copy; OpenTopoMap (CC-BY-SA)",
     maxZoom: 17
 });
 
 const googleSatLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
     maxZoom: 19,
     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-    attribution: "&copy; <a href='https://www.google.com/maps' target='_blank'>Google Maps</a>"
+    attribution: "&copy; Google Maps"
 });
 
+// Base map selection
 const baseMaps = {
     "OpenStreetMap": openStreetMapLayer,
     "OpenTopoMap": openTopoMapLayer,
     "Luftbilder": googleSatLayer
 };
 
-const selectedBasemap = baseMaps[savedBasemap];
-selectedBasemap.addTo(mymap);
+baseMaps[savedBasemap].addTo(map);
+L.control.layers(baseMaps).addTo(map);
+L.control.scale({ metric: true, imperial: false }).addTo(map);
 
-const layerControl = L.control.layers(baseMaps).addTo(mymap);
-L.control.scale({ metric: true, imperial: false }).addTo(mymap);
-
-const search = new GeoSearch.GeoSearchControl({
+// GeoSearch control for searching locations
+const searchControl = new GeoSearch.GeoSearchControl({
     provider: new GeoSearch.OpenStreetMapProvider(),
     autoComplete: true,
-    autoCompleteDelay: 250,
-    showMarker: true,
-    showPopup: false,
+    autoCompleteDelay: 250
 });
+map.addControl(searchControl);
 
-mymap.addControl(search);
-
-// Custom marker icons
+// Custom yellow marker icon
 const yellowIcon = L.icon({
     iconUrl: './media/marker-icon-yellow.png',
     iconSize: [25, 41],
@@ -89,7 +80,7 @@ let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 let loadedArticles = new Set();
 let currentLang = savedLanguage;
 
-// Function to add or remove Wikipedia markers on the map
+// Function to add Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
     const { lat, lng } = center;
 
@@ -106,8 +97,7 @@ function loadWikipediaMarkers(center, lang = 'en') {
                     fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=600&titles=${article.title}&format=json&origin=*`)
                         .then(response => response.json())
                         .then(detailData => {
-                            const pages = detailData.query.pages;
-                            const page = Object.values(pages)[0];
+                            const page = Object.values(detailData.query.pages)[0];
                             const imageUrl = page.thumbnail ? page.thumbnail.source : '';
                             const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
                             const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
@@ -130,21 +120,23 @@ function loadWikipediaMarkers(center, lang = 'en') {
         .catch(error => console.error('Error fetching Wikipedia articles:', error));
 }
 
-mymap.addLayer(wikipediaMarkers);
+// Add Wikipedia markers to the map
+map.addLayer(wikipediaMarkers);
 
-mymap.on('moveend', function() {
-    const center = mymap.getCenter();
-    const zoom = mymap.getZoom();
+// Load Wikipedia markers on map move end
+map.on('moveend', () => {
+    const center = map.getCenter();
+    const zoom = map.getZoom();
     setCookie("mapCenter", JSON.stringify(center), 7);
     setCookie("mapZoom", zoom, 7);
     loadWikipediaMarkers(center, currentLang);
 });
 
 // Initialize with the current map center
-loadWikipediaMarkers(mymap.getCenter(), currentLang);
+loadWikipediaMarkers(map.getCenter(), currentLang);
 
-// Save basemap selection
-mymap.on('baselayerchange', function(e) {
+// Save base map selection in cookies
+map.on('baselayerchange', (e) => {
     setCookie("mapBasemap", e.name, 7);
 });
 
@@ -161,41 +153,7 @@ function openFullscreen(element) {
     }
 }
 
-// add location control
-const geolocation = L.control
-  .locate({
-    strings: {
-      title: "Show me where I am, yo!"
-    }
-  })
-  .addTo(mymap);
-
-// Add the language switcher control to the map
-const LanguageControl = L.Control.extend({
-    onAdd: function(map) {
-        const div = L.DomUtil.create('div', 'leaflet-control-custom');
-        div.innerHTML = `
-            <div class="language-switch">
-                <input type="radio" id="lang-de" name="language" value="de">
-                <label for="lang-de">DE</label>
-                <input type="radio" id="lang-en" name="language" value="en" ${currentLang === "en" ? "checked" : ""}>
-                <label for="lang-en">EN</label>
-            </div>
-        `;
-        L.DomEvent.disableClickPropagation(div);
-        return div;
-    }
-});
-
-mymap.addControl(new LanguageControl({ position: 'bottomright' }));
-
-// Handle language switch
-document.querySelectorAll('input[name="language"]').forEach(input => {
-    input.addEventListener('change', function() {
-        currentLang = this.value;
-        setCookie("mapLanguage", currentLang, 7);
-        loadedArticles.clear(); // Clear the set of loaded articles
-        wikipediaMarkers.clearLayers(); // Clear the existing markers
-        loadWikipediaMarkers(mymap.getCenter(), currentLang); // Load markers for the new language
-    });
-});
+// Add location control to the map
+L.control.locate({
+    strings: { title: "Show me where I am" }
+}).addTo(map);
