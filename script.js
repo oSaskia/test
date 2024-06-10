@@ -161,45 +161,14 @@ function openFullscreen(element) {
     }
 }
 
-// Add the locate control to the map
-L.control.locate({
-    position: 'topright',
-    setView: false,  // Prevents resetting the view
-    keepCurrentZoomLevel: true,  // Keeps the current zoom level
-    drawCircle: true,
-    follow: false,  // Disables automatic following
-    markerStyle: {
-        weight: 1,
-        opacity: 0.8,
-        fillOpacity: 0.8
-    },
-    circleStyle: {
-        color: '#136AEC',
-        fillColor: '#136AEC',
-        fillOpacity: 0.15,
-        weight: 2,
-        opacity: 0.5
-    },
-    icon: 'fas fa-location-arrow',  // FontAwesome icon
-    metric: true,
-    onLocationError: function(e) {
-        alert(e.message);
-    },
-    onLocationOutsideMapBounds: function(context) { // If the location is outside map bounds
-        context.stop();
-        alert("You seem located outside the boundaries of the map.");
-    },
-    locateOptions: {
-        maxZoom: 16,
-        watch: true,
-        enableHighAccuracy: true
+// add location control
+const geolocation = L.control
+  .locate({
+    strings: {
+      title: "Show me where I am, yo!"
     }
-}).addTo(mymap);
-
-// Function to show the device's location
-function showDeviceLocation() {
-    mymap.locate({ setView: true, maxZoom: 16 });
-}
+  })
+  .addTo(mymap);
 
 // Add the language switcher control to the map
 const LanguageControl = L.Control.extend({
