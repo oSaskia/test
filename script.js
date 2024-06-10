@@ -26,10 +26,10 @@ function getCookie(name) {
 // Initialize the map
 const savedCenter = getCookie("mapCenter");
 const savedZoom = getCookie("mapZoom");
-const savedLanguage = getCookie("mapLanguage") || "en";
+const savedLanguage = getCookie("mapLanguage") || "de";
 const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
 
-const mapCenter = savedCenter ? JSON.parse(savedCenter) : [51.0897904, 14.6926595];
+const mapCenter = savedCenter ? JSON.parse(savedCenter) : [50.932188, 10.583255];
 const mapZoom = savedZoom ? parseInt(savedZoom) : 7;
 
 const mymap = L.map('map').setView(mapCenter, mapZoom);
@@ -85,7 +85,7 @@ const yellowIcon = L.icon({
 });
 
 // Store Wikipedia markers to enable toggling
-let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 15 });
+let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 let loadedArticles = new Set();
 let currentLang = savedLanguage;
 
