@@ -30,7 +30,7 @@ const savedLanguage = getCookie("mapLanguage") || "de";
 const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
 
 const mapCenter = savedCenter ? JSON.parse(savedCenter) : [50.932188, 10.583255];
-const mapZoom = savedZoom ? parseInt(savedZoom) : 7;
+const mapZoom = savedZoom ? parseInt(savedZoom) : 6;
 
 const mymap = L.map('map').setView(mapCenter, mapZoom);
 
@@ -164,10 +164,10 @@ function openFullscreen(element) {
 // Add the locate control to the map
 L.control.locate({
     position: 'topright',
-    setView: 'always',
-    keepCurrentZoomLevel: false,
+    setView: false,  // Prevents resetting the view
+    keepCurrentZoomLevel: true,  // Keeps the current zoom level
     drawCircle: true,
-    follow: false,
+    follow: false,  // Disables automatic following
     markerStyle: {
         weight: 1,
         opacity: 0.8,
