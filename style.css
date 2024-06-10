@@ -111,6 +111,10 @@ html, body {
     margin-top: 5px;
 }
 
+.leaflet-control-locate {
+    display: block; /* Ensure the control is displayed */
+}
+
 .leaflet-control-locate .fa-location-arrow {
     color: black; /* Default color for the icon */
 }

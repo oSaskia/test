@@ -162,14 +162,12 @@ function openFullscreen(element) {
 }
 
 // Add the locate control to the map
-let firstLocationFound = false; // Flag to check if the location was found for the first time
-
 L.control.locate({
     position: 'topright',
-    setView: true,  // Initially set the view to the user's location
-    keepCurrentZoomLevel: false,
+    setView: false,  // Prevents resetting the view
+    keepCurrentZoomLevel: true,  // Keeps the current zoom level
     drawCircle: true,
-    follow: false,
+    follow: false,  // Disables automatic following
     markerStyle: {
         weight: 1,
         opacity: 0.8,
@@ -189,26 +187,21 @@ L.control.locate({
     },
     onLocationOutsideMapBounds: function(context) { // If the location is outside map bounds
         context.stop();
-        alert("Sie scheinen sich außerhalb der Grenzen der Karte zu befinden.");
+        alert("You seem located outside the boundaries of the map.");
     },
     locateOptions: {
         maxZoom: 16,
         watch: true,
         enableHighAccuracy: true
     }
-}).on('locationfound', function(e) {
-    if (!firstLocationFound) {
-        mymap.setView(e.latlng, 16);  // Set the view to the user's location and zoom level 16
-        firstLocationFound = true;  // Set the flag to true after the first location is found
-    }
 }).addTo(mymap);
 
-// Funktion, um den Standort des Geräts zu zeigen
+// Function to show the device's location
 function showDeviceLocation() {
     mymap.locate({ setView: true, maxZoom: 16 });
 }
 
-// Sprachumschalter-Steuerung zur Karte hinzufügen
+// Add the language switcher control to the map
 const LanguageControl = L.Control.extend({
     onAdd: function(map) {
         const div = L.DomUtil.create('div', 'leaflet-control-custom');
@@ -227,13 +220,13 @@ const LanguageControl = L.Control.extend({
 
 mymap.addControl(new LanguageControl({ position: 'bottomright' }));
 
-// Sprachwechsel-Handling
+// Handle language switch
 document.querySelectorAll('input[name="language"]').forEach(input => {
     input.addEventListener('change', function() {
         currentLang = this.value;
         setCookie("mapLanguage", currentLang, 7);
-        loadedArticles.clear(); // Lösche die geladenen Artikel
-        wikipediaMarkers.clearLayers(); // Lösche die vorhandenen Marker
-        loadWikipediaMarkers(mymap.getCenter(), currentLang); // Lade die Marker für die neue Sprache
+        loadedArticles.clear(); // Clear the set of loaded articles
+        wikipediaMarkers.clearLayers(); // Clear the existing markers
+        loadWikipediaMarkers(mymap.getCenter(), currentLang); // Load markers for the new language
     });
 });
