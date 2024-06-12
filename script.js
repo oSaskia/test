@@ -19,7 +19,7 @@ function getCookie(name) {
 // Initialize the map
 const savedCenter = getCookie("mapCenter");
 const savedZoom = getCookie("mapZoom");
-const savedLanguage = getCookie("mapLanguage") || "de";
+const savedLanguage = getCookie("mapLanguage") || "en";
 const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
 
 // Set default map center and zoom level
@@ -79,10 +79,16 @@ const yellowIcon = L.icon({
 let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 let loadedArticles = new Set();
 let currentLang = savedLanguage;
+let wikipediaEnabled = true;
 
 // Function to add Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
     const { lat, lng } = center;
+    
+    if (!wikipediaEnabled) {
+        wikipediaMarkers.clearLayers();
+        return;
+    }
 
     fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=10000&gslimit=500&format=json&origin=*`)
         .then(response => response.json())
@@ -129,11 +135,15 @@ map.on('moveend', () => {
     const zoom = map.getZoom();
     setCookie("mapCenter", JSON.stringify(center), 7);
     setCookie("mapZoom", zoom, 7);
-    loadWikipediaMarkers(center, currentLang);
+    if (wikipediaEnabled) {
+        loadWikipediaMarkers(center, currentLang);
+    }
 });
 
 // Initialize with the current map center
-loadWikipediaMarkers(map.getCenter(), currentLang);
+if (wikipediaEnabled) {
+    loadWikipediaMarkers(map.getCenter(), currentLang);
+}
 
 // Save base map selection in cookies
 map.on('baselayerchange', (e) => {
@@ -157,3 +167,48 @@ function openFullscreen(element) {
 L.control.locate({
     strings: { title: "Show me where I am" }
 }).addTo(map);
+
+// Add cascade buttons to control Wikipedia functionality
+new L.cascadeButtons([
+    {
+        icon: 'fa-brands fa-wikipedia-w', 
+        items: [
+            {
+                icon: '', 
+                text: 'Off', 
+                command: () => {
+                    wikipediaEnabled = false;
+                    wikipediaMarkers.clearLayers();
+                    loadedArticles.clear();
+                    console.log('Wikipedia-Funktion deaktiviert');
+                }
+            },
+            {
+                icon: '', 
+                text: 'DE', 
+                command: () => {
+                    wikipediaEnabled = true;
+                    wikipediaMarkers.clearLayers();
+                    loadedArticles.clear();
+                    currentLang = 'de';
+                    setCookie("mapLanguage", 'de', 7);
+                    loadWikipediaMarkers(map.getCenter(), 'de');
+                    console.log('Wikipedia-Sprache auf Deutsch gesetzt');
+                }
+            },
+            {
+                icon: '', 
+                text: 'EN', 
+                command: () => {
+                    wikipediaEnabled = true;
+                    wikipediaMarkers.clearLayers();
+                    loadedArticles.clear();
+                    currentLang = 'en';
+                    setCookie("mapLanguage", 'en', 7);
+                    loadWikipediaMarkers(map.getCenter(), 'en');
+                    console.log('Wikipedia-Sprache auf Englisch gesetzt');
+                }
+            },
+        ]
+    }
+], { position: 'topright', direction: 'horizontal' }).addTo(map);
