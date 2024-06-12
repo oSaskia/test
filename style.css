@@ -94,7 +94,3 @@ html, body {
     text-align: center;
 }
 
-.activeButton {
-    background-color: #f4f4f4;
-    box-shadow: 0 0 1px 3px #C2CB00 !important;
-}

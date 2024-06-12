@@ -168,17 +168,6 @@ L.control.locate({
     strings: { title: "Show me where I am" }
 }).addTo(map);
 
-let activeButton = null;
-
-// Function to update the active button's appearance
-function setActiveButton(button) {
-    if (activeButton) {
-        activeButton.classList.remove('activeButton');
-    }
-    activeButton = button;
-    activeButton.classList.add('activeButton');
-}
-
 // Add cascade buttons to control Wikipedia functionality
 new L.cascadeButtons([
     {
@@ -187,18 +176,17 @@ new L.cascadeButtons([
             {
                 icon: '', 
                 text: 'Off', 
-                command: function(event) {
+                command: () => {
                     wikipediaEnabled = false;
                     wikipediaMarkers.clearLayers();
                     loadedArticles.clear();
                     console.log('Wikipedia-Funktion deaktiviert');
-                    setActiveButton(event.target);
                 }
             },
             {
                 icon: '', 
                 text: 'DE', 
-                command: function(event) {
+                command: () => {
                     wikipediaEnabled = true;
                     wikipediaMarkers.clearLayers();
                     loadedArticles.clear();
@@ -206,13 +194,12 @@ new L.cascadeButtons([
                     setCookie("mapLanguage", 'de', 7);
                     loadWikipediaMarkers(map.getCenter(), 'de');
                     console.log('Wikipedia-Sprache auf Deutsch gesetzt');
-                    setActiveButton(event.target);
                 }
             },
             {
                 icon: '', 
                 text: 'EN', 
-                command: function(event) {
+                command: () => {
                     wikipediaEnabled = true;
                     wikipediaMarkers.clearLayers();
                     loadedArticles.clear();
@@ -220,9 +207,8 @@ new L.cascadeButtons([
                     setCookie("mapLanguage", 'en', 7);
                     loadWikipediaMarkers(map.getCenter(), 'en');
                     console.log('Wikipedia-Sprache auf Englisch gesetzt');
-                    setActiveButton(event.target);
                 }
             },
         ]
     }
-], { position: 'topleft', direction: 'vertical' }).addTo(map);
+], { position: 'topright', direction: 'horizontal' }).addTo(map);
