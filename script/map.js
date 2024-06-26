@@ -397,16 +397,6 @@ mymap.on('click', () => {
     mainButton.setAttribute('aria-expanded', 'false');
 });
 
-// Add the route layer to the map
-const layer_routenroute_1 = new L.geoJson(json_routenroute_1, {
-    attribution: '',
-    interactive: false,
-    dataVar: 'json_routenroute_1',
-    layerName: 'layer_routenroute_1',
-    style: getStyle(mymap.getZoom())
-});
-mymap.addLayer(layer_routenroute_1);
-
 // Define style for the route layer based on the zoom level
 function getStyle(zoom) {
     if (zoom >= 14) {
