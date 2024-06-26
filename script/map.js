@@ -384,7 +384,7 @@ const wikiButton = new L.cascadeButtons([
             }
         ]
     }
-], { position: 'topright', direction: 'horizontal' }).addTo(mymap);
+], { position: 'topleft', direction: 'horizontal' }).addTo(mymap);
 
 // Hide wiki buttons when clicking outside
 mymap.on('click', () => {
