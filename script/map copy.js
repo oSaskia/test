@@ -16,6 +16,37 @@ function getCookie(name) {
     return null;
 }
 
+// Default coordinates and zoom level
+const defaultCenterCoordinates = [50.9412784, 6.9557065];
+const defaultMapZoom = 10;
+const defaultWikiStatus = 'Off'; // Default wiki status: 'DE', 'EN', 'ES', 'FR', 'RU', 'IT', 'AR', 'NL', 'CEB', 'SV', or 'Off'
+const showCustomMarkers = true; // Control to show/hide custom markers
+
+// Data for the markers on the map
+const markersData = [
+    {
+        coordinates: "52.46650, 13.43371",
+        date: "17.05.2024",
+        title: "Aufbruch",
+        mediaType: "video",
+        mediaSrc: "./media/2024-05-17-1.mp4",
+        description: "So ihr lieben Freunde, |||Hier könnt ihr mich nun auf euren Handys eine Weile beim Wandern begleiten - hoffentlich den ganzen Weg von Berlin bis runter ans Meer! |||Wie oft, wie genau und wie ehrlich ich hier posten werde, weiß ich noch nicht. Aber aber es macht ja nur Spaß, wenn es immer Mal ein bisschen deftig zugeht, gell. Und wahrscheinlich kommen auch viele Videos. |||Jetzt zu den Fakten: Heute um die Mittagsstunde bin ich der Silbersteinstraße in Richtung Südosten aufgebrochen. |||Soweit läuft es sich herrlich. Obwohl ich derzeit noch, im Zustand höchster Sensibilität, jedem kleinsten Wehwehchen in den Gelenken nachspüre, kann ich soweit von keinem Schmerz berichten!",
+        "map-center": false,
+        "markerType": "orange"
+    },
+    {
+        coordinates: "52.112028, 13.762333",
+        date: "18.05.2024",
+        title: "Schlafplatz",
+        mediaType: "image",
+        mediaSrc: "./media/2024-05-18.jpg",
+        description: "Biwakplatz mit Dusche",
+        "map-center": false,
+        "markerType": "blue"
+    }
+    // Additional markers can be added here
+];
+
 // Determine map center and zoom level
 let centerCoordinates = defaultCenterCoordinates;
 let mapZoom = defaultMapZoom;
