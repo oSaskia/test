@@ -16,36 +16,6 @@ function getCookie(name) {
     return null;
 }
 
-// Default coordinates and zoom level
-const defaultCenterCoordinates = [50.9412784, 6.9557065];
-const defaultMapZoom = 10;
-const defaultWikiStatus = 'DE'; // Default wiki status: 'DE', 'EN', or 'Off'
-
-// Data for the markers on the map
-const markersData = [
-    {
-        coordinates: "52.46650, 13.43371",
-        date: "17.05.2024",
-        title: "Aufbruch",
-        mediaType: "video",
-        mediaSrc: "./media/2024-05-17-1.mp4",
-        description: "So ihr lieben Freunde, |||Hier könnt ihr mich nun auf euren Handys eine Weile beim Wandern begleiten - hoffentlich den ganzen Weg von Berlin bis runter ans Meer! |||Wie oft, wie genau und wie ehrlich ich hier posten werde, weiß ich noch nicht. Aber aber es macht ja nur Spaß, wenn es immer Mal ein bisschen deftig zugeht, gell. Und wahrscheinlich kommen auch viele Videos. |||Jetzt zu den Fakten: Heute um die Mittagsstunde bin ich der Silbersteinstraße in Richtung Südosten aufgebrochen. |||Soweit läuft es sich herrlich. Obwohl ich derzeit noch, im Zustand höchster Sensibilität, jedem kleinsten Wehwehchen in den Gelenken nachspüre, kann ich soweit von keinem Schmerz berichten!",
-        "map-center": true,
-        "markerType": "orange"
-    },
-    {
-        coordinates: "52.112028, 13.762333",
-        date: "18.05.2024",
-        title: "Schlafplatz",
-        mediaType: "image",
-        mediaSrc: "./media/2024-05-18.jpg",
-        description: "Biwakplatz mit Dusche",
-        "map-center": false,
-        "markerType": "blue"
-    }
-    // Additional markers can be added here
-];
-
 // Determine map center and zoom level
 let centerCoordinates = defaultCenterCoordinates;
 let mapZoom = defaultMapZoom;
@@ -176,6 +146,7 @@ function loadWikipediaMarkers(center, lang = 'en') {
                             const page = Object.values(detailData.query.pages)[0];
                             const imageUrl = page.thumbnail ? page.thumbnail.source : '';
                             const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
+                            const googleMapsLink = `https://www.google.com/maps?q=${article.lat},${article.lon}`;
                             const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
                             marker.bindPopup(`
                                 <div class="popup-content">
@@ -184,6 +155,9 @@ function loadWikipediaMarkers(center, lang = 'en') {
                                     <div class="text-container">
                                         ${page.extract}
                                         <a href="https://${lang}.wikipedia.org/wiki/${article.title}" target="_blank">${readMoreText}</a>
+                                    </div>
+                                    <div class="links-container">
+                                        <a href="${googleMapsLink}" target="_blank" class="link-button">Google Maps</a>
                                     </div>
                                 </div>
                             `);
@@ -239,7 +213,7 @@ L.control.locate({
 }).addTo(mymap);
 
 // Add cascade buttons to control Wikipedia functionality
-new L.cascadeButtons([
+const wikiButton = new L.cascadeButtons([
     {
         icon: 'fa-brands fa-wikipedia-w', 
         items: [
@@ -285,6 +259,17 @@ new L.cascadeButtons([
         ]
     }
 ], { position: 'topright', direction: 'horizontal' }).addTo(mymap);
+
+// Hide wiki buttons when clicking outside
+mymap.on('click', () => {
+    const buttons = document.querySelectorAll('.leaflet-control-cascadeButtons button');
+    buttons.forEach((button, index) => {
+        if (index !== 0) button.classList.add('hidden');
+    });
+    const mainButton = document.querySelector('.leaflet-control-cascadeButtons button');
+    mainButton.classList.remove('activeButton');
+    mainButton.setAttribute('aria-expanded', 'false');
+});
 
 // Add the route layer to the map
 const layer_routenroute_1 = new L.geoJson(json_routenroute_1, {
@@ -377,6 +362,8 @@ class MarkerContent {
 
 // Function to create markers from the provided data
 function createMarkers() {
+    if (!showCustomMarkers) return;
+
     for (const markerData of markersData) {
         const [lat, lng] = markerData.coordinates.split(',').map(Number);
         const icon = markerData.markerType === 'orange' ? orangeIcon : blueIcon;
