@@ -19,7 +19,7 @@ function getCookie(name) {
 // Default coordinates and zoom level
 const defaultCenterCoordinates = [50.9412784, 6.9557065];
 const defaultMapZoom = 10;
-const defaultWikiStatus = 'Off'; // Default wiki status: 'DE', 'EN', 'ES', 'FR', 'RU', 'IT', 'AR', 'NL', 'CEB', 'SV', or 'Off'
+const defaultWikiStatus = 'Off'; // Default wiki status: 'DE', 'EN', 'ES', 'FR', 'RU', 'IT', 'AR', 'NL', 'CEB', 'SE', or 'Off'
 const showCustomMarkers = true; // Control to show/hide custom markers
 
 // Data for the markers on the map
@@ -150,7 +150,24 @@ const blueIcon = L.icon({
 let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 let loadedArticles = new Set();
 let currentLang = savedWikiStatus.toLowerCase() === 'off' ? 'en' : savedWikiStatus.toLowerCase();
+if (currentLang === 'se') {
+    currentLang = 'sv'; // Map 'SE' to 'sv' for Swedish Wikipedia
+}
 let wikipediaEnabled = savedWikiStatus !== 'Off';
+
+// Translations for "Read more"
+const readMoreTranslations = {
+    en: "Read more",
+    de: "Mehr lesen",
+    es: "Leer más",
+    fr: "Lire la suite",
+    ru: "Читать далее",
+    it: "Leggi di più",
+    ar: "اقرأ أكثر",
+    nl: "Lees meer",
+    ceb: "Basaha pa",
+    sv: "Läs mer"
+};
 
 // Function to add Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
@@ -176,7 +193,7 @@ function loadWikipediaMarkers(center, lang = 'en') {
                         .then(detailData => {
                             const page = Object.values(detailData.query.pages)[0];
                             const imageUrl = page.thumbnail ? page.thumbnail.source : '';
-                            const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
+                            const readMoreText = readMoreTranslations[lang] || readMoreTranslations['en'];
                             const googleMapsLink = `https://www.google.com/maps?q=${article.lat},${article.lon}`;
                             const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
                             marker.bindPopup(`
@@ -387,14 +404,14 @@ const wikiButton = new L.cascadeButtons([
             },
             {
                 icon: '', 
-                text: 'SV', 
+                text: 'SE', 
                 command: () => {
                     wikipediaEnabled = true;
                     wikipediaMarkers.clearLayers();
                     loadedArticles.clear();
-                    currentLang = 'sv';
+                    currentLang = 'sv'; // Map 'SE' to 'sv' for Swedish Wikipedia
                     setCookie("mapLanguage", 'sv', 7);
-                    setCookie("wikiStatus", 'SV', 7);
+                    setCookie("wikiStatus", 'SE', 7);
                     loadWikipediaMarkers(mymap.getCenter(), 'sv');
                     console.log('Wikipedia-Sprache auf Schwedisch gesetzt');
                 }

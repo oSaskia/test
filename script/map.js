@@ -121,6 +121,20 @@ let loadedArticles = new Set();
 let currentLang = savedWikiStatus.toLowerCase() === 'off' ? 'en' : savedWikiStatus.toLowerCase();
 let wikipediaEnabled = savedWikiStatus !== 'Off';
 
+// Translations for "Read more"
+const readMoreTranslations = {
+    en: "Read more",
+    de: "Mehr lesen",
+    es: "Leer más",
+    fr: "Lire la suite",
+    ru: "Читать далее",
+    it: "Leggi di più",
+    ar: "اقرأ أكثر",
+    nl: "Lees meer",
+    ceb: "Basaha pa",
+    sv: "Läs mer"
+};
+
 // Function to add Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
     const { lat, lng } = center;
@@ -145,7 +159,7 @@ function loadWikipediaMarkers(center, lang = 'en') {
                         .then(detailData => {
                             const page = Object.values(detailData.query.pages)[0];
                             const imageUrl = page.thumbnail ? page.thumbnail.source : '';
-                            const readMoreText = lang === 'en' ? 'Read more' : 'Mehr lesen';
+                            const readMoreText = readMoreTranslations[lang] || readMoreTranslations['en'];
                             const googleMapsLink = `https://www.google.com/maps?q=${article.lat},${article.lon}`;
                             const marker = L.marker([article.lat, article.lon], { icon: yellowIcon });
                             marker.bindPopup(`
