@@ -16,9 +16,10 @@ function getCookie(name) {
     return null;
 }
 
-// Default coordinates if no marker is defined as the center and no cookie is available
+// Default coordinates and zoom level
 const defaultCenterCoordinates = [50.9412784, 6.9557065];
-const defaultMapZoom = 15;
+const defaultMapZoom = 10;
+const defaultWikiStatus = 'DE'; // Default wiki status: 'DE', 'EN', or 'Off'
 
 // Data for the markers on the map
 const markersData = [
@@ -29,7 +30,7 @@ const markersData = [
         mediaType: "video",
         mediaSrc: "./media/2024-05-17-1.mp4",
         description: "So ihr lieben Freunde, |||Hier könnt ihr mich nun auf euren Handys eine Weile beim Wandern begleiten - hoffentlich den ganzen Weg von Berlin bis runter ans Meer! |||Wie oft, wie genau und wie ehrlich ich hier posten werde, weiß ich noch nicht. Aber aber es macht ja nur Spaß, wenn es immer Mal ein bisschen deftig zugeht, gell. Und wahrscheinlich kommen auch viele Videos. |||Jetzt zu den Fakten: Heute um die Mittagsstunde bin ich der Silbersteinstraße in Richtung Südosten aufgebrochen. |||Soweit läuft es sich herrlich. Obwohl ich derzeit noch, im Zustand höchster Sensibilität, jedem kleinsten Wehwehchen in den Gelenken nachspüre, kann ich soweit von keinem Schmerz berichten!",
-        "map-center": false,
+        "map-center": true,
         "markerType": "orange"
     },
     {
@@ -45,29 +46,34 @@ const markersData = [
     // Additional markers can be added here
 ];
 
-// Check if any marker is defined as the center
+// Determine map center and zoom level
 let centerCoordinates = defaultCenterCoordinates;
 let mapZoom = defaultMapZoom;
+let centerMarkerFound = false;
+
 for (const markerData of markersData) {
     if (markerData["map-center"]) {
         centerCoordinates = markerData.coordinates.split(',').map(Number);
-        mapZoom = 10; // Default zoom level when a marker is used as the center
+        mapZoom = defaultMapZoom;
+        centerMarkerFound = true;
         break;
     }
 }
 
-// Override with cookie values if available
-const savedCenter = getCookie("mapCenter");
-const savedZoom = getCookie("mapZoom");
-if (savedCenter) {
-    centerCoordinates = JSON.parse(savedCenter);
-}
-if (savedZoom) {
-    mapZoom = parseInt(savedZoom);
+if (!centerMarkerFound) {
+    const savedCenter = getCookie("mapCenter");
+    const savedZoom = getCookie("mapZoom");
+    if (savedCenter) {
+        centerCoordinates = JSON.parse(savedCenter);
+    }
+    if (savedZoom) {
+        mapZoom = parseInt(savedZoom);
+    }
 }
 
 const savedLanguage = getCookie("mapLanguage") || "en";
 const savedBasemap = getCookie("mapBasemap") || "OpenStreetMap";
+const savedWikiStatus = getCookie("wikiStatus") || defaultWikiStatus;
 
 // Initialize the map
 const mymap = L.map('map').setView(centerCoordinates, mapZoom);
@@ -143,7 +149,7 @@ const blueIcon = L.icon({
 let wikipediaMarkers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
 let loadedArticles = new Set();
 let currentLang = savedLanguage;
-let wikipediaEnabled = true;
+let wikipediaEnabled = savedWikiStatus !== 'Off';
 
 // Function to add Wikipedia markers on the map
 function loadWikipediaMarkers(center, lang = 'en') {
@@ -244,6 +250,7 @@ new L.cascadeButtons([
                     wikipediaEnabled = false;
                     wikipediaMarkers.clearLayers();
                     loadedArticles.clear();
+                    setCookie("wikiStatus", 'Off', 7);
                     console.log('Wikipedia-Funktion deaktiviert');
                 }
             },
@@ -256,6 +263,7 @@ new L.cascadeButtons([
                     loadedArticles.clear();
                     currentLang = 'de';
                     setCookie("mapLanguage", 'de', 7);
+                    setCookie("wikiStatus", 'DE', 7);
                     loadWikipediaMarkers(mymap.getCenter(), 'de');
                     console.log('Wikipedia-Sprache auf Deutsch gesetzt');
                 }
@@ -269,6 +277,7 @@ new L.cascadeButtons([
                     loadedArticles.clear();
                     currentLang = 'en';
                     setCookie("mapLanguage", 'en', 7);
+                    setCookie("wikiStatus", 'EN', 7);
                     loadWikipediaMarkers(mymap.getCenter(), 'en');
                     console.log('Wikipedia-Sprache auf Englisch gesetzt');
                 }
