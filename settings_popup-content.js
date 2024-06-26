@@ -1,7 +1,7 @@
 // Settings, default coordinates and zoom level
 const defaultCenterCoordinates = [50.5762814, 9.1919403];
 const defaultMapZoom = 14;
-const defaultWikiStatus = 'Off'; // Default wiki status: 'DE', 'EN', 'ES', 'FR', 'RU', 'IT', 'AR', 'NL', 'CEB', 'SV', or 'Off'
+const defaultWikiStatus = 'DE'; // Default wiki status: 'DE', 'EN', 'ES', 'FR', 'RU', 'IT', 'AR', 'NL', 'CEB', 'SV', or 'Off'
 const showCustomMarkers = false; // Control to show/hide custom markers
 
 // Data for the markers on the map
